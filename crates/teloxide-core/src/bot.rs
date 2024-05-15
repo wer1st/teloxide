@@ -10,6 +10,7 @@ use crate::{
 };
 
 mod api;
+pub(crate) mod api_extend;
 mod download;
 
 const TELOXIDE_TOKEN: &str = "TELOXIDE_TOKEN";

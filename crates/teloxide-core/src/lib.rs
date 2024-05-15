@@ -118,5 +118,9 @@ mod bot;
 // implementation details
 mod serde_multipart;
 
+pub mod extend {
+    pub use crate::bot::api_extend::ApiExtend;
+}
+
 #[cfg(test)]
 mod codegen;
