@@ -1,7 +1,7 @@
 use crate::{
     payloads,
     requests::JsonRequest,
-    types::{MessageId, Recipient, ReplyParameters, ThreadId},
+    types::{Message, Recipient, ReplyParameters, ThreadId},
     Bot,
 };
 
@@ -9,21 +9,19 @@ pub trait ApiExtend {
     fn send_message_to_thread<C, T>(
         &self,
         chat_id: C,
-        message_thread_id: ThreadId,
+        thread_id: ThreadId,
         text: T,
     ) -> JsonRequest<payloads::SendMessage>
     where
         C: Into<Recipient>,
         T: Into<String>;
 
-    fn reply_to_message<C, T>(
+    fn reply_to_message<T>(
         &self,
-        chat_id: C,
-        message_id: MessageId,
+        reply_to: &Message,
         text: T,
     ) -> JsonRequest<payloads::SendMessage>
     where
-        C: Into<Recipient>,
         T: Into<String>;
 }
 
@@ -31,7 +29,7 @@ impl ApiExtend for Bot {
     fn send_message_to_thread<C, T>(
         &self,
         chat_id: C,
-        message_thread_id: ThreadId,
+        thread_id: ThreadId,
         text: T,
     ) -> JsonRequest<payloads::SendMessage>
     where
@@ -39,22 +37,17 @@ impl ApiExtend for Bot {
         T: Into<String>,
     {
         let mut msg = payloads::SendMessage::new(chat_id, text);
-        msg.message_thread_id = Some(message_thread_id);
+        msg.message_thread_id = Some(thread_id);
         JsonRequest::<payloads::SendMessage>::new(self.clone(), msg)
     }
 
-    fn reply_to_message<C, T>(
-        &self,
-        chat_id: C,
-        message_id: MessageId,
-        text: T,
-    ) -> JsonRequest<payloads::SendMessage>
+    fn reply_to_message<T>(&self, reply_to: &Message, text: T) -> JsonRequest<payloads::SendMessage>
     where
-        C: Into<Recipient>,
         T: Into<String>,
     {
-        let mut msg = payloads::SendMessage::new(chat_id, text);
-        msg.reply_parameters = Some(ReplyParameters::new(message_id));
+        let mut msg = payloads::SendMessage::new(reply_to.chat.id, text);
+        msg.message_thread_id = reply_to.thread_id;
+        msg.reply_parameters = Some(ReplyParameters::new(reply_to.id));
         JsonRequest::<payloads::SendMessage>::new(self.clone(), msg)
     }
 }
