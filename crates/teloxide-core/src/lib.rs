@@ -130,5 +130,9 @@ mod bot;
 mod serde_multipart;
 mod util;
 
+pub mod extend {
+    pub use crate::bot::api_extend::ApiExtend;
+}
+
 #[cfg(test)]
 mod codegen;
